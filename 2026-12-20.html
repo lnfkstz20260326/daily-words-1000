@@ -134,18 +134,24 @@ body {
 
 /* 按钮 */
 .button-group {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 6px;
-    justify-content: center;
+    justify-items: center;
+    margin-top: 4px;
+}
+.button-group .btn-stop {
+    grid-column: 1 / -1;
 }
 .btn {
-    padding: 6px 12px;
+    width: 100%;
+    padding: 7px 8px;
     border: none;
     border-radius: 15px;
     cursor: pointer;
     font-size: 0.85em;
     transition: all 0.3s;
+    white-space: nowrap;
 }
 .btn:hover { transform: scale(1.05); }
 .btn-slow { background: linear-gradient(135deg, #ff9800, #f57c00); color: white; }
@@ -438,7 +444,18 @@ async function startAutoPlay() {
     
     // 等待语音初始化
     await initVoices();
-    
+
+    // 手机端解锁：用一次极短的空语音触发浏览器语音权限
+    await new Promise((resolve) => {
+        const u = new SpeechSynthesisUtterance(' ');
+        u.volume = 0;
+        u.rate = 2;
+        u.onend = resolve;
+        u.onerror = resolve;
+        window.speechSynthesis.speak(u);
+        setTimeout(resolve, 300);
+    });
+
     isPlaying = true;
     currentLoop = 0;
     
