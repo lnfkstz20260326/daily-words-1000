@@ -332,9 +332,12 @@ function speak(text, lang, rate) {
         utterance.lang = lang;
         utterance.rate = rate;
         
-        // 选择语音
+        // 选择语音 - 优先选择男性英语语音
         if (lang === 'en-US') {
-            const voice = allVoices.find(v => v.lang.startsWith('en')) || allVoices[0];
+            // 优先级：Microsoft David > Google US English Male > 其他男性 > 任意英语
+            let voice = allVoices.find(v => v.name.includes('David') && v.lang.startsWith('en'));
+            if (!voice) voice = allVoices.find(v => v.name.includes('Male') && v.lang.startsWith('en'));
+            if (!voice) voice = allVoices.find(v => v.lang.startsWith('en'));
             if (voice) utterance.voice = voice;
         } else if (lang === 'zh-CN') {
             const voice = allVoices.find(v => v.lang.startsWith('zh')) || allVoices[0];
