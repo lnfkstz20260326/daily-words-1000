@@ -386,6 +386,75 @@ function restoreProgress() {
     alert('✅ 进度已恢复到第' + val + '天！');
 }
 
+// 导出进度码
+function exportProgress() {
+    var KEY_ROUNDS = 'roundsData_' + userUID;
+    var roundsData = {};
+    try { roundsData = JSON.parse(localStorage.getItem(KEY_ROUNDS) || '{}'); } catch(e) {}
+    // 把 learnedDays 也合并进去（确保已学完的天都有7轮记录）
+    var KEY_LEARNED = 'learnedDays_' + userUID;
+    var learned = [];
+    try { learned = JSON.parse(localStorage.getItem(KEY_LEARNED) || '[]'); } catch(e) {}
+    for (var i = 0; i < learned.length; i++) {
+        var d = learned[i];
+        if (!roundsData[d] || roundsData[d] < 7) roundsData[d] = 7;
+    }
+    var code = btoa(JSON.stringify(roundsData));
+    // 弹窗显示
+    var msg = '📤 进度码（复制后保存）：\n\n' + code + '\n\n换设备时粘贴到"导入恢复"框中即可。';
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(code).then(function() {
+            alert('✅ 进度码已复制到剪贴板！\n\n' + code + '\n\n建议截图保存备用。');
+        }, function() {
+            prompt('请手动复制下方进度码：', code);
+        });
+    } else {
+        prompt('请手动复制下方进度码：', code);
+    }
+}
+
+// 导入进度码
+function importProgress() {
+    var code = document.getElementById('import-code').value.trim();
+    if (!code) { alert('请先粘贴进度码！'); return; }
+    var newData;
+    try {
+        newData = JSON.parse(atob(code));
+    } catch(e) {
+        alert('❌ 进度码格式不对，请重新复制粘贴。');
+        return;
+    }
+    if (!confirm('将导入进度码中的数据（与本机记录合并，取较大值，不覆盖本机已有进度），确定吗？')) return;
+
+    var KEY_ROUNDS = 'roundsData_' + userUID;
+    var existing = {};
+    try { existing = JSON.parse(localStorage.getItem(KEY_ROUNDS) || '{}'); } catch(e) {}
+    // 合并：取较大值
+    for (var day in newData) {
+        var v = parseInt(newData[day]) || 0;
+        var e2 = parseInt(existing[day]) || 0;
+        existing[day] = Math.max(v, e2);
+    }
+    localStorage.setItem(KEY_ROUNDS, JSON.stringify(existing));
+
+    // 同步更新 learnedDays（达到7轮的标记为已学习）
+    var KEY_LEARNED = 'learnedDays_' + userUID;
+    var learned = [];
+    try { learned = JSON.parse(localStorage.getItem(KEY_LEARNED) || '[]'); } catch(e) {}
+    for (var day in existing) {
+        var dayNum = parseInt(day);
+        if (existing[day] >= 7 && learned.indexOf(dayNum) === -1) {
+            learned.push(dayNum);
+        }
+    }
+    localStorage.setItem(KEY_LEARNED, JSON.stringify(learned));
+
+    document.getElementById('import-code').value = '';
+    renderDaysGrid();
+    updateStats();
+    alert('✅ 进度码导入成功！');
+}
+
 // 初始化
 renderDaysGrid();
 updateStats();
