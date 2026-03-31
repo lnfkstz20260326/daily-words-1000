@@ -132,6 +132,7 @@ input[type="text"]:focus { border-color: #4CAF50; }
             <label>备注（可选）</label>
             <input type="text" id="single-note" placeholder="例如：5年级A班" />
         </div>
+        <p class="tip" style="margin-bottom:10px;">💡 重名时请在姓名后加区分信息，例如 <strong>张三-1班</strong> 或 <strong>张三-138xxxx</strong>，将来找回链接时输入同样内容即可</p>
         <button class="btn btn-green" onclick="generateSingle()">生成专属链接</button>
         <div id="single-result" style="margin-top:12px;"></div>
     </div>
@@ -145,6 +146,7 @@ input[type="text"]:focus { border-color: #4CAF50; }
         </div>
         <button class="btn btn-blue" onclick="generateBatch()">批量生成</button>
         <p class="tip">同一姓名每次生成的链接完全一致，可放心重复生成</p>
+        <p class="tip" style="margin-top:4px;">💡 重名学员请写成 <strong>张三-1班</strong>、<strong>张三-2班</strong> 加以区分</p>
         <div id="batch-result" style="margin-top:12px;"></div>
     </div>
 
@@ -155,6 +157,7 @@ input[type="text"]:focus { border-color: #4CAF50; }
             <label>学员姓名</label>
             <input type="text" id="recover-name" placeholder="输入学员姓名，立即找回链接" />
         </div>
+        <p class="tip" style="margin-bottom:10px;">💡 当初生成时输入的是什么，这里就输入什么（含区分信息也一样）</p>
         <button class="btn btn-purple" onclick="recoverLink()">找回链接</button>
         <div id="recover-result" class="recover-result recover-ok"></div>
     </div>
