@@ -512,6 +512,14 @@ async function startAutoPlay() {
             await sleep(500);
         }
         
+        // 每轮结束 - 立即保存累计轮数
+        if (typeof _saveRoundProgress === 'function') {
+            _saveRoundProgress(currentLoop);
+        }
+        // 每轮结束 - 立即保存累计轮数
+        if (typeof _saveRoundProgress === 'function') {
+            _saveRoundProgress(currentLoop);
+        }
         // 每轮结束后等待2秒
         if (isPlaying && currentLoop < maxLoops) {
             await sleep(2000);
@@ -522,7 +530,7 @@ async function startAutoPlay() {
     isPlaying = false;
     statusDiv.textContent = '✅ 完成';
     btn.textContent = '▶️ 开始循环朗读';
-    // 7轮完成，标记已学习
+    // 播放结束，检查是否已累计7轮
     if (typeof _markLearnedIfDone === 'function') {
         _markLearnedIfDone(currentLoop, maxLoops);
     }
@@ -546,19 +554,77 @@ initVoices();
 </script>
 
 <script>
-// 学习进度追踪
-function markAsLearned() {
+// ========== 学习进度追踪（碎片化累计，每轮保存，累计7轮标记已学习）==========
+(function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var userUID = urlParams.get('uid') || 'default';
+    var userName = decodeURIComponent(urlParams.get('name') || '');
     var dayNum = 176;
-    var key = 'daily-words-1000-day-' + dayNum;
-    localStorage.setItem(key, 'learned');
-}
+    var TOTAL_DAYS = 641;
+    var ROUNDS_NEEDED = 7;
 
-// 页面加载时标记为已学习
-if (document.readyState === 'complete') {
-    markAsLearned();
-} else {
-    window.addEventListener('load', markAsLearned);
-}
+    var KEY_LEARNED = 'learnedDays_' + userUID;
+    var KEY_CURRENT = 'currentDay_' + userUID;
+    var KEY_ROUNDS  = 'roundsData_' + userUID;
+
+    function getRounds(day) {
+        if (!day || userUID === 'default') return 0;
+        var stored = localStorage.getItem(KEY_ROUNDS);
+        var data = stored ? JSON.parse(stored) : {};
+        return data[day] || 0;
+    }
+
+    window._saveRoundProgress = function(completedLoops) {
+        if (!dayNum || userUID === 'default') return;
+        var stored = localStorage.getItem(KEY_ROUNDS);
+        var data = stored ? JSON.parse(stored) : {};
+        data[dayNum] = Math.max(data[dayNum] || 0, completedLoops);
+        localStorage.setItem(KEY_ROUNDS, JSON.stringify(data));
+        if (data[dayNum] >= ROUNDS_NEEDED) {
+            _doMarkLearned(dayNum);
+        }
+    };
+
+    function _doMarkLearned(day) {
+        var stored = localStorage.getItem(KEY_LEARNED);
+        var learnedDays = stored ? JSON.parse(stored) : [];
+        if (!learnedDays.includes(day)) {
+            learnedDays.push(day);
+            localStorage.setItem(KEY_LEARNED, JSON.stringify(learnedDays));
+        }
+        var nextDay = day + 1;
+        while (nextDay <= TOTAL_DAYS && learnedDays.includes(nextDay)) {
+            nextDay++;
+        }
+        if (nextDay <= TOTAL_DAYS) {
+            localStorage.setItem(KEY_CURRENT, nextDay.toString());
+        }
+    }
+
+    window._markLearnedIfDone = function(completedLoops, maxLoops) {
+        if (!dayNum || userUID === 'default') return;
+        window._saveRoundProgress(completedLoops);
+    };
+
+    window._buildIndexURL = function() {
+        var base = 'index.html';
+        if (userUID && userUID !== 'default') {
+            base += '?uid=' + encodeURIComponent(userUID) + '&name=' + encodeURIComponent(userName);
+        }
+        return base;
+    };
+
+    window.addEventListener('load', function() {
+        if (!dayNum || userUID === 'default') return;
+        var done = getRounds(dayNum);
+        if (done > 0 && done < ROUNDS_NEEDED) {
+            var statusDiv = document.getElementById('loopStatus');
+            if (statusDiv) {
+                statusDiv.textContent = '📌 已累计 ' + done + '/' + ROUNDS_NEEDED + ' 轮，继续加油！';
+            }
+        }
+    });
+})();
 </script>
 </body>
 </html>

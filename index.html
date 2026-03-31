@@ -189,13 +189,14 @@ body {
 
     <div class="days-grid" id="days-grid"></div>
 
-    <div style="text-align:right; padding: 16px 4px 0 0;">
-        <span style="font-size:0.82em; color:#666;">📲 换设备？已学到第</span>
-        <input type="number" id="restore-day" min="1" max="641" placeholder="天"
-               style="width:54px; padding:4px 6px; border:1px solid #aaa; border-radius:6px; font-size:0.82em; text-align:center;" />
-        <span style="font-size:0.82em; color:#666;">天</span>
-        <button onclick="restoreProgress()"
-                style="background:#43a047; color:white; border:none; border-radius:6px; padding:5px 10px; font-size:0.82em; cursor:pointer; margin-left:4px;">恢复进度</button>
+    <div style="text-align:right; padding: 16px 4px 0 0; line-height:2.2;">
+        <button onclick="exportProgress()"
+                style="background:#1565c0; color:white; border:none; border-radius:6px; padding:5px 12px; font-size:0.82em; cursor:pointer; margin-right:6px;">📤 导出进度码</button>
+        <span style="font-size:0.82em; color:#666;">换设备？粘贴进度码：</span>
+        <input type="text" id="import-code" placeholder="粘贴进度码"
+               style="width:110px; padding:4px 6px; border:1px solid #aaa; border-radius:6px; font-size:0.82em;" />
+        <button onclick="importProgress()"
+                style="background:#43a047; color:white; border:none; border-radius:6px; padding:5px 10px; font-size:0.82em; cursor:pointer; margin-left:4px;">导入恢复</button>
     </div>
     <div style="text-align:right; padding: 6px 4px 4px 0;">
         <span onclick="resetProgress()" style="font-size:0.72em; color:#bbb; cursor:pointer; user-select:none;">重置进度</span>
@@ -373,6 +374,11 @@ function restoreProgress() {
     var days = [];
     for (var i = 1; i <= val; i++) { days.push(i); }
     saveLearnedDays(days);
+    // 同步设置每天轮数为7（碎片化数据）
+    var KEY_ROUNDS = 'roundsData_' + userUID;
+    var roundsData = {};
+    for (var i = 1; i <= val; i++) { roundsData[i] = 7; }
+    localStorage.setItem(KEY_ROUNDS, JSON.stringify(roundsData));
     saveCurrentDay(val + 1 <= TOTAL_DAYS ? val + 1 : val);
     document.getElementById('restore-day').value = '';
     renderDaysGrid();

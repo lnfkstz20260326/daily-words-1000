@@ -512,6 +512,10 @@ async function startAutoPlay() {
             await sleep(500);
         }
         
+        // 每轮结束 - 立即保存累计轮数
+        if (typeof _saveRoundProgress === 'function') {
+            _saveRoundProgress(currentLoop);
+        }
         // 每轮结束后等待2秒
         if (isPlaying && currentLoop < maxLoops) {
             await sleep(2000);
@@ -522,7 +526,7 @@ async function startAutoPlay() {
     isPlaying = false;
     statusDiv.textContent = '✅ 完成';
     btn.textContent = '▶️ 开始循环朗读';
-    // 7轮完成，标记已学习
+    // 播放结束，检查是否已累计7轮
     if (typeof _markLearnedIfDone === 'function') {
         _markLearnedIfDone(currentLoop, maxLoops);
     }
@@ -546,36 +550,64 @@ initVoices();
 </script>
 
 <script>
-// ========== 学习进度追踪（7轮完成后才标记已学习）==========
+// ========== 学习进度追踪（碎片化累计，每轮保存，累计7轮标记已学习）==========
 (function() {
     var urlParams = new URLSearchParams(window.location.search);
     var userUID = urlParams.get('uid') || 'default';
     var userName = decodeURIComponent(urlParams.get('name') || '');
     var dayNum = parseInt(urlParams.get('day') || '0');
     var TOTAL_DAYS = 641;
+    var ROUNDS_NEEDED = 7;
 
-    window._markLearnedIfDone = function(completedLoops, maxLoops) {
-        // 只有7轮全部完成，且有uid和dayNum时才标记
-        if (completedLoops < maxLoops) return;
+    var KEY_LEARNED = 'learnedDays_' + userUID;
+    var KEY_CURRENT = 'currentDay_' + userUID;
+    var KEY_ROUNDS  = 'roundsData_' + userUID;  // {dayNum: 已完成轮数}
+
+    // 获取某天已完成轮数
+    function getRounds(day) {
+        if (!day || userUID === 'default') return 0;
+        var stored = localStorage.getItem(KEY_ROUNDS);
+        var data = stored ? JSON.parse(stored) : {};
+        return data[day] || 0;
+    }
+
+    // 每完成1轮立即保存（碎片化核心）
+    window._saveRoundProgress = function(completedLoops) {
         if (!dayNum || userUID === 'default') return;
+        var stored = localStorage.getItem(KEY_ROUNDS);
+        var data = stored ? JSON.parse(stored) : {};
+        // 只增不减：取当前存储值和本次播放进度的较大值
+        data[dayNum] = Math.max(data[dayNum] || 0, completedLoops);
+        localStorage.setItem(KEY_ROUNDS, JSON.stringify(data));
 
-        var KEY_LEARNED = 'learnedDays_' + userUID;
-        var KEY_CURRENT = 'currentDay_' + userUID;
+        // 检查是否已累计够7轮
+        if (data[dayNum] >= ROUNDS_NEEDED) {
+            _doMarkLearned(dayNum);
+        }
+    };
 
+    // 标记某天为已学习
+    function _doMarkLearned(day) {
         var stored = localStorage.getItem(KEY_LEARNED);
         var learnedDays = stored ? JSON.parse(stored) : [];
-        if (!learnedDays.includes(dayNum)) {
-            learnedDays.push(dayNum);
+        if (!learnedDays.includes(day)) {
+            learnedDays.push(day);
             localStorage.setItem(KEY_LEARNED, JSON.stringify(learnedDays));
         }
         // 更新当前天为下一个未学习的天
-        var nextDay = dayNum + 1;
+        var nextDay = day + 1;
         while (nextDay <= TOTAL_DAYS && learnedDays.includes(nextDay)) {
             nextDay++;
         }
         if (nextDay <= TOTAL_DAYS) {
             localStorage.setItem(KEY_CURRENT, nextDay.toString());
         }
+    }
+
+    // 兜底：播放结束时也检查（兼容旧逻辑）
+    window._markLearnedIfDone = function(completedLoops, maxLoops) {
+        if (!dayNum || userUID === 'default') return;
+        window._saveRoundProgress(completedLoops);
     };
 
     // 返回首页时带uid和name参数
@@ -586,6 +618,18 @@ initVoices();
         }
         return base;
     };
+
+    // 页面加载时显示当天已完成轮数提示
+    window.addEventListener('load', function() {
+        if (!dayNum || userUID === 'default') return;
+        var done = getRounds(dayNum);
+        if (done > 0 && done < ROUNDS_NEEDED) {
+            var statusDiv = document.getElementById('loopStatus');
+            if (statusDiv) {
+                statusDiv.textContent = '📌 已累计 ' + done + '/' + ROUNDS_NEEDED + ' 轮，继续加油！';
+            }
+        }
+    });
 })();
 </script>
 </body>
