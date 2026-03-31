@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>每日英语口语 - 2026-05-21</title>
+<title>📚 每日英语听说 - 第52天</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -160,7 +160,7 @@ body {
 <div class="container">
     <div class="header">
         <h1>📚 每日英语听说</h1>
-        <div class="date-info">2026-05-21</div>
+        <div class="date-info">第52天 / 共641天</div>
     </div>
 
     <div class="top-controls">
@@ -536,6 +536,22 @@ function sleep(ms) {
 
 // ========== 页面加载后初始化 ==========
 initVoices();
+</script>
+
+<script>
+// 学习进度追踪
+function markAsLearned() {
+    var dayNum = 52;
+    var key = 'daily-words-1000-day-' + dayNum;
+    localStorage.setItem(key, 'learned');
+}
+
+// 页面加载时标记为已学习
+if (document.readyState === 'complete') {
+    markAsLearned();
+} else {
+    window.addEventListener('load', markAsLearned);
+}
 </script>
 </body>
 </html>
