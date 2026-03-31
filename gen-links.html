@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学员链接生成工具 - 每日英语听说1000天</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; padding: 20px; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { text-align: center; color: #333; margin-bottom: 8px; font-size: 22px; }
+.subtitle { text-align: center; color: #888; margin-bottom: 24px; font-size: 14px; }
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.card h2 { font-size: 16px; color: #333; margin-bottom: 12px; }
+
+.input-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+.input-row label { width: 80px; font-size: 14px; color: #555; flex-shrink: 0; }
+input[type="text"], input[type="number"] {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    outline: none;
+}
+input:focus { border-color: #4CAF50; }
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.btn:hover { opacity: 0.85; }
+.btn-green { background: #4CAF50; color: white; }
+.btn-blue { background: #2196F3; color: white; }
+.btn-orange { background: #FF9800; color: white; }
+.btn-red { background: #f44336; color: white; }
+.btn-gray { background: #9e9e9e; color: white; }
+
+.link-item {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.link-item .name { font-weight: bold; font-size: 13px; color: #333; min-width: 80px; flex-shrink: 0; }
+.link-item .url { flex: 1; font-size: 12px; color: #555; word-break: break-all; }
+.link-item .copy-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.link-item .copy-btn:hover { background: #1976D2; }
+
+.copy-all-area {
+    background: #f0f4ff;
+    border: 1px solid #c5cae9;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+}
+.copy-all-area textarea {
+    width: 100%;
+    height: 120px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-family: monospace;
+    resize: none;
+    outline: none;
+    color: #333;
+}
+.tip { font-size: 12px; color: #888; margin-top: 8px; }
+.tip-box {
+    background: #fff8e1;
+    border-left: 4px solid #FFC107;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+}
+.count { font-size: 13px; color: #888; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🔗 学员链接生成工具</h1>
+    <p class="subtitle">每日英语听说1000天 · 为每位学员生成独立进度链接</p>
+
+    <div class="card">
+        <h2>📌 使用说明</h2>
+        <div class="tip-box">
+            1. 每位学员拥有一个<strong>专属链接</strong>，学习进度独立保存，互不干扰<br>
+            2. 学员在<strong>同一台设备、同一个浏览器</strong>用自己的链接，进度会保留<br>
+            3. 换设备后，进度不互通（这是浏览器限制，无需服务器）<br>
+            4. 推荐使用 <strong>Edge浏览器</strong>，男生发音效果最好<br>
+            5. 生成后，把链接发给学员保存即可
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>✍️ 单个生成</h2>
+        <div class="input-row">
+            <label>学员姓名</label>
+            <input type="text" id="single-name" placeholder="例如：张三" />
+        </div>
+        <div class="input-row">
+            <label>备注（可选）</label>
+            <input type="text" id="single-note" placeholder="例如：小学5年级A班" />
+        </div>
+        <button class="btn btn-green" onclick="generateSingle()">生成链接</button>
+        <div id="single-result" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>📋 批量生成</h2>
+        <div class="input-row">
+            <label>学员名单</label>
+            <input type="text" id="batch-names" placeholder="用逗号或换行分隔，例如：张三,李四,王五" style="flex:1" />
+        </div>
+        <button class="btn btn-blue" onclick="generateBatch()">批量生成</button>
+        <p class="tip">也可以直接输入数字，例如输入 "10" 生成10个匿名链接（学员1~10）</p>
+        <div id="batch-result" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="card" id="all-links-card" style="display:none">
+        <h2>📤 全部链接（可复制发送）</h2>
+        <p class="count" id="all-count"></p>
+        <div class="copy-all-area">
+            <textarea id="all-links-text" readonly></textarea>
+        </div>
+        <div style="margin-top:10px; display:flex; gap:8px;">
+            <button class="btn btn-blue" onclick="copyAll()">📋 一键复制全部</button>
+            <button class="btn btn-gray" onclick="clearAll()">🗑️ 清空重来</button>
+        </div>
+    </div>
+</div>
+
+<script>
+var BASE_URL = 'https://lnfkstz20260326.github.io/daily-words-1000/index.html';
+var allLinks = [];
+
+function makeUID(name) {
+    // 生成唯一ID：姓名拼音首字母 + 随机6位数字
+    var rand = Math.floor(100000 + Math.random() * 900000).toString();
+    // 简单处理：把姓名中的汉字转为pinyin首字母（粗略）或直接用随机字符串
+    var prefix = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().substring(0, 4) || 'u';
+    return prefix + rand;
+}
+
+function makeLink(uid) {
+    return BASE_URL + '?uid=' + uid;
+}
+
+function generateSingle() {
+    var name = document.getElementById('single-name').value.trim();
+    var note = document.getElementById('single-note').value.trim();
+    if (!name) { alert('请输入学员姓名'); return; }
+    
+    var uid = makeUID(name);
+    var link = makeLink(uid);
+    
+    var label = name + (note ? '（' + note + '）' : '');
+    addToAll(label, link, uid);
+    
+    var html = '<div class="link-item">' +
+        '<span class="name">' + label + '</span>' +
+        '<span class="url">' + link + '</span>' +
+        '<button class="copy-btn" onclick="copyText(\'' + link + '\', this)">复制</button>' +
+        '</div>';
+    document.getElementById('single-result').innerHTML = html;
+    document.getElementById('single-name').value = '';
+    document.getElementById('single-note').value = '';
+}
+
+function generateBatch() {
+    var input = document.getElementById('batch-names').value.trim();
+    if (!input) { alert('请输入学员名单或数字'); return; }
+    
+    var names = [];
+    // 判断是否为纯数字
+    if (/^\d+$/.test(input)) {
+        var n = parseInt(input);
+        for (var i = 1; i <= n; i++) names.push('学员' + i);
+    } else {
+        names = input.split(/[,，\n]/).map(function(s){ return s.trim(); }).filter(Boolean);
+    }
+    
+    var html = '';
+    names.forEach(function(name) {
+        var uid = makeUID(name);
+        var link = makeLink(uid);
+        addToAll(name, link, uid);
+        html += '<div class="link-item">' +
+            '<span class="name">' + name + '</span>' +
+            '<span class="url">' + link + '</span>' +
+            '<button class="copy-btn" onclick="copyText(\'' + link + '\', this)">复制</button>' +
+            '</div>';
+    });
+    document.getElementById('batch-result').innerHTML = html;
+    document.getElementById('batch-names').value = '';
+}
+
+function addToAll(name, link, uid) {
+    allLinks.push({ name: name, link: link, uid: uid });
+    updateAllCard();
+}
+
+function updateAllCard() {
+    var card = document.getElementById('all-links-card');
+    card.style.display = 'block';
+    document.getElementById('all-count').textContent = '共 ' + allLinks.length + ' 位学员';
+    var text = allLinks.map(function(item) {
+        return item.name + '：' + item.link;
+    }).join('\n');
+    document.getElementById('all-links-text').value = text;
+}
+
+function copyAll() {
+    var textarea = document.getElementById('all-links-text');
+    textarea.select();
+    document.execCommand('copy');
+    alert('已复制全部链接！可以粘贴到微信/Excel发给学员。');
+}
+
+function copyText(text, btn) {
+    var input = document.createElement('input');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    btn.textContent = '✅已复制';
+    setTimeout(function(){ btn.textContent = '复制'; }, 2000);
+}
+
+function clearAll() {
+    allLinks = [];
+    document.getElementById('all-links-card').style.display = 'none';
+    document.getElementById('single-result').innerHTML = '';
+    document.getElementById('batch-result').innerHTML = '';
+}
+</script>
+</body>
+</html>

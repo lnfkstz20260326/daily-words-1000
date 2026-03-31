@@ -218,26 +218,32 @@ const dateFiles = [
     '2027-12-21','2027-12-22','2027-12-23','2027-12-24','2027-12-25','2027-12-26','2027-12-27','2027-12-28','2027-12-29','2027-12-30','2027-12-31'
 ];
 
+// 读取URL中的uid参数，作为用户标识
+var urlParams = new URLSearchParams(window.location.search);
+var userUID = urlParams.get('uid') || 'default';
+var KEY_LEARNED = 'learnedDays_' + userUID;
+var KEY_CURRENT = 'currentDay_' + userUID;
+
 // 获取学习进度
 function getLearnedDays() {
-    const stored = localStorage.getItem('learnedDays');
+    var stored = localStorage.getItem(KEY_LEARNED);
     return stored ? JSON.parse(stored) : [];
 }
 
 // 保存学习进度
 function saveLearnedDays(days) {
-    localStorage.setItem('learnedDays', JSON.stringify(days));
+    localStorage.setItem(KEY_LEARNED, JSON.stringify(days));
 }
 
 // 获取当前天（从localStorage或默认第1天）
 function getCurrentDay() {
-    const current = localStorage.getItem('currentDay');
+    var current = localStorage.getItem(KEY_CURRENT);
     return current ? parseInt(current) : 1;
 }
 
 // 保存当前天
 function saveCurrentDay(day) {
-    localStorage.setItem('currentDay', day.toString());
+    localStorage.setItem(KEY_CURRENT, day.toString());
 }
 
 // 更新统计
@@ -297,8 +303,8 @@ function renderDaysGrid() {
 // 重置进度
 function resetProgress() {
     if (confirm('确定要重置所有学习进度吗？')) {
-        localStorage.removeItem('learnedDays');
-        localStorage.removeItem('currentDay');
+        localStorage.removeItem(KEY_LEARNED);
+        localStorage.removeItem(KEY_CURRENT);
         renderDaysGrid();
         updateStats();
     }
