@@ -113,6 +113,40 @@ body {
     margin-top: 20px;
 }
 .reset-btn:hover { background: #e64a19; }
+
+.restore-box {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.restore-box label {
+    color: #555;
+    font-size: 0.95em;
+}
+.restore-box input {
+    width: 80px;
+    padding: 8px 10px;
+    border: 2px solid #aaa;
+    border-radius: 8px;
+    font-size: 1em;
+    text-align: center;
+    outline: none;
+}
+.restore-box input:focus { border-color: #43a047; }
+.restore-btn {
+    background: #43a047;
+    color: white;
+    padding: 9px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: bold;
+}
+.restore-btn:hover { background: #2e7d32; }
 </style>
 </head>
 <body>
@@ -157,6 +191,12 @@ body {
     
     <div style="text-align:center;">
         <button class="reset-btn" onclick="resetProgress()">🔄 重置进度</button>
+        <div class="restore-box">
+            <label>📲 换设备了？我已学到第</label>
+            <input type="number" id="restore-day" min="1" max="641" placeholder="天数" />
+            <label>天</label>
+            <button class="restore-btn" onclick="restoreProgress()">恢复进度</button>
+        </div>
     </div>
 </div>
 
@@ -324,6 +364,24 @@ function resetProgress() {
         renderDaysGrid();
         updateStats();
     }
+}
+
+// 恢复进度（换设备后手动输入已学天数）
+function restoreProgress() {
+    var val = parseInt(document.getElementById('restore-day').value);
+    if (!val || val < 1 || val > TOTAL_DAYS) {
+        alert('请输入 1 ~ ' + TOTAL_DAYS + ' 之间的天数');
+        return;
+    }
+    if (!confirm('将把第1天到第' + val + '天全部标记为已学习，确定吗？')) return;
+    var days = [];
+    for (var i = 1; i <= val; i++) { days.push(i); }
+    saveLearnedDays(days);
+    saveCurrentDay(val + 1 <= TOTAL_DAYS ? val + 1 : val);
+    document.getElementById('restore-day').value = '';
+    renderDaysGrid();
+    updateStats();
+    alert('✅ 进度已恢复到第' + val + '天！');
 }
 
 // 初始化
