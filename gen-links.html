@@ -214,8 +214,8 @@ function nameToUID(name) {
     return safe;
 }
 
-function makeLink(uid) {
-    return BASE_URL + '?uid=' + encodeURIComponent(uid);
+function makeLink(uid, name) {
+    return BASE_URL + '?uid=' + encodeURIComponent(uid) + '&name=' + encodeURIComponent(name || '');
 }
 
 // -------------------------------------------------------
@@ -227,7 +227,7 @@ function generateSingle() {
     if (!name) { alert('请输入学员姓名'); return; }
 
     var uid  = nameToUID(name);
-    var link = makeLink(uid);
+    var link = makeLink(uid, name);
     var label = name + (note ? '（' + note + '）' : '');
     addToAll(name, note, uid, link);
 
@@ -254,7 +254,7 @@ function generateBatch() {
     var html = '';
     names.forEach(function(name) {
         var uid  = nameToUID(name);
-        var link = makeLink(uid);
+        var link = makeLink(uid, name);
         addToAll(name, '', uid, link);
         html += renderItem(name, uid, link);
     });
@@ -270,7 +270,7 @@ function recoverLink() {
     if (!name) { alert('请输入学员姓名'); return; }
 
     var uid  = nameToUID(name);
-    var link = makeLink(uid);
+    var link = makeLink(uid, name);
     var el   = document.getElementById('recover-result');
     el.style.display = 'block';
     el.innerHTML =

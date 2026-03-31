@@ -20,6 +20,20 @@ body {
     background: white;
     border-radius: 20px;
     box-shadow: 0 4px 20px rgba(0,0,0,.1);
+    position: relative;
+}
+.student-name-tag {
+    position: absolute;
+    top: 14px;
+    left: 18px;
+    background: linear-gradient(135deg, #43a047, #66bb6a);
+    color: white;
+    font-size: 0.85em;
+    font-weight: bold;
+    padding: 5px 12px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(67,160,71,0.3);
+    white-space: nowrap;
 }
 .header h1 { color: #2e7d32; font-size: 2em; margin-bottom: 10px; }
 .header .subtitle { color: #666; font-size: 1.1em; }
@@ -104,6 +118,7 @@ body {
 <body>
 <div class="container">
     <div class="header">
+        <div class="student-name-tag" id="student-name-tag" style="display:none;"></div>
         <h1>📚 每日英语听说1000天</h1>
         <p class="subtitle">碎片化听说，随时运用，每天进步1%</p>
     </div>
@@ -221,6 +236,7 @@ const dateFiles = [
 // 读取URL中的uid参数，作为用户标识
 var urlParams = new URLSearchParams(window.location.search);
 var userUID = urlParams.get('uid') || 'default';
+var userName = decodeURIComponent(urlParams.get('name') || '');
 var KEY_LEARNED = 'learnedDays_' + userUID;
 var KEY_CURRENT = 'currentDay_' + userUID;
 
@@ -313,6 +329,13 @@ function resetProgress() {
 // 初始化
 renderDaysGrid();
 updateStats();
+
+// 显示学员姓名（有name参数才显示）
+if (userName) {
+    var tag = document.getElementById('student-name-tag');
+    tag.textContent = '👤 ' + userName;
+    tag.style.display = 'block';
+}
 </script>
 </body>
 </html>
