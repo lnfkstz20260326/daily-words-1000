@@ -522,13 +522,17 @@ async function startAutoPlay() {
     isPlaying = false;
     statusDiv.textContent = '✅ 完成';
     btn.textContent = '▶️ 开始循环朗读';
+    // 7轮完成，标记已学习
+    if (typeof _markLearnedIfDone === 'function') {
+        _markLearnedIfDone(currentLoop, maxLoops);
+    }
 }
 
 // ========== 返回首页 ==========
 function goBack() {
     stopSpeaking();
     setTimeout(() => {
-        location.href = 'index.html';
+        location.href = (typeof _buildIndexURL === 'function') ? _buildIndexURL() : 'index.html';
     }, 100);
 }
 
@@ -542,19 +546,47 @@ initVoices();
 </script>
 
 <script>
-// 学习进度追踪
-function markAsLearned() {
-    var dayNum = 1;
-    var key = 'daily-words-1000-day-' + dayNum;
-    localStorage.setItem(key, 'learned');
-}
+// ========== 学习进度追踪（7轮完成后才标记已学习）==========
+(function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var userUID = urlParams.get('uid') || 'default';
+    var userName = decodeURIComponent(urlParams.get('name') || '');
+    var dayNum = parseInt(urlParams.get('day') || '0');
+    var TOTAL_DAYS = 641;
 
-// 页面加载时标记为已学习
-if (document.readyState === 'complete') {
-    markAsLearned();
-} else {
-    window.addEventListener('load', markAsLearned);
-}
+    window._markLearnedIfDone = function(completedLoops, maxLoops) {
+        // 只有7轮全部完成，且有uid和dayNum时才标记
+        if (completedLoops < maxLoops) return;
+        if (!dayNum || userUID === 'default') return;
+
+        var KEY_LEARNED = 'learnedDays_' + userUID;
+        var KEY_CURRENT = 'currentDay_' + userUID;
+
+        var stored = localStorage.getItem(KEY_LEARNED);
+        var learnedDays = stored ? JSON.parse(stored) : [];
+        if (!learnedDays.includes(dayNum)) {
+            learnedDays.push(dayNum);
+            localStorage.setItem(KEY_LEARNED, JSON.stringify(learnedDays));
+        }
+        // 更新当前天为下一个未学习的天
+        var nextDay = dayNum + 1;
+        while (nextDay <= TOTAL_DAYS && learnedDays.includes(nextDay)) {
+            nextDay++;
+        }
+        if (nextDay <= TOTAL_DAYS) {
+            localStorage.setItem(KEY_CURRENT, nextDay.toString());
+        }
+    };
+
+    // 返回首页时带uid和name参数
+    window._buildIndexURL = function() {
+        var base = 'index.html';
+        if (userUID && userUID !== 'default') {
+            base += '?uid=' + encodeURIComponent(userUID) + '&name=' + encodeURIComponent(userName);
+        }
+        return base;
+    };
+})();
 </script>
 </body>
 </html>

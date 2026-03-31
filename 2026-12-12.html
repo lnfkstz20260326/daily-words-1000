@@ -522,13 +522,17 @@ async function startAutoPlay() {
     isPlaying = false;
     statusDiv.textContent = '✅ 完成';
     btn.textContent = '▶️ 开始循环朗读';
+    // 7轮完成，标记已学习
+    if (typeof _markLearnedIfDone === 'function') {
+        _markLearnedIfDone(currentLoop, maxLoops);
+    }
 }
 
 // ========== 返回首页 ==========
 function goBack() {
     stopSpeaking();
     setTimeout(() => {
-        location.href = 'index.html';
+        location.href = (typeof _buildIndexURL === 'function') ? _buildIndexURL() : 'index.html';
     }, 100);
 }
 

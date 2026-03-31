@@ -334,22 +334,16 @@ function renderDaysGrid() {
             btn.classList.add('day-unlearned');
         }
         
-        // 点击时记录学习进度
-        btn.addEventListener('click', function() {
-            const dayNum = i;
-            const learnedDays = getLearnedDays();
-            if (!learnedDays.includes(dayNum)) {
-                learnedDays.push(dayNum);
-                saveLearnedDays(learnedDays);
+        // 点击时：带uid和name参数跳转，不再立刻标记已学习（由播放页面完成7轮后标记）
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var url = dateFiles[i-1];
+            if (userUID && userUID !== 'default') {
+                url += '?uid=' + encodeURIComponent(userUID) +
+                       '&name=' + encodeURIComponent(userName) +
+                       '&day=' + i;
             }
-            // 更新当前天为下一个未学习的天
-            let nextDay = dayNum + 1;
-            while (nextDay <= TOTAL_DAYS && learnedDays.includes(nextDay)) {
-                nextDay++;
-            }
-            if (nextDay <= TOTAL_DAYS) {
-                saveCurrentDay(nextDay);
-            }
+            window.location.href = url;
         });
         
         grid.appendChild(btn);
