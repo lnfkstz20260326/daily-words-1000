@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>每日英语听说 - 第600天</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #e0f7fa 0%, #bbdefb 100%);
+    min-height: 100vh;
+    padding: 10px;
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+.header {
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.1);
+}
+.header h1 {
+    color: #1565c0;
+    font-size: 1.8em;
+    margin-bottom: 8px;
+}
+.header h2 {
+    color: #666;
+    font-size: 1em;
+    margin-top: 5px;
+}
+.date-info {
+    color: #666;
+    font-size: 1em;
+}
+
+/* 顶部控制按钮 */
+.top-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+.loop-status {
+    background: #e8f5e9;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 1em;
+    color: #2e7d32;
+    text-align: center;
+}
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
+.word-title {
+    font-size: 1.6em;
+    color: #1565c0;
+    margin-bottom: 8px;
+}
+.chinese-meaning {
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 10px;
+}
+.example-en {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 8px;
+}
+.example-cn {
+    font-size: 1em;
+    color: #777;
+    margin-bottom: 12px;
+}
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+@media (min-width: 600px) {
+    .buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+.btn {
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.btn-stop {
+    grid-column: 1/-1;
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    color: white;
+}
+@media (min-width: 600px) {
+    .btn-stop {
+        grid-column: 1/3;
+    }
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,.15);
+}
+/* 语音选择 */
+.voice-select {
+    margin: 15px auto;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📚 每日英语听说1000天</h1>
+        <h2>碎片化听说，随时运用，每天进步1%</h2>
+        <div class="date-info">
+            <span>第600天</span>
+            <span>2027-11-20</span>
+            <span id="progress-display"></span>
+        </div>
+    </div>
+
+    <div class="top-controls">
+        <button class="btn btn-loop" onclick="startAutoPlay()">
+            <span>▶️</span>开始循环朗读
+        </button>
+    </div>
+    <div class="loop-status" id="loop-status"></div>
+
+    
+        <div class="card" id="card-1">
+            <div class="word-title" id="phrase-en-1">neat</div>
+            <div class="chinese-meaning" id="phrase-zh-1">整洁的</div>
+            <div class="example-en">Look neat today.</div>
+            <div class="example-cn">今天看起来很整洁。</div>
+            <div class="buttons">
+                <button class="btn btn-slow" onclick="speakPhrase(1)">🐢 慢速词×3</button>
+                <button class="btn btn-normal" onclick="speakPhrase(1)">🚀 匀速词×3</button>
+                <button class="btn btn-fast" onclick="speakPhrase(1)">⚡ 常速句×3</button>
+                <button class="btn btn-stop" onclick="stopPlayback()">⏹️ 停止</button>
+            </div>
+        </div>
+        
+
+        <div class="card" id="card-2">
+            <div class="word-title" id="phrase-en-2">tidy</div>
+            <div class="chinese-meaning" id="phrase-zh-2">整齐的</div>
+            <div class="example-en">Keep your room tidy.</div>
+            <div class="example-cn">保持房间整洁。</div>
+            <div class="buttons">
+                <button class="btn btn-slow" onclick="speakPhrase(2)">🐢 慢速词×3</button>
+                <button class="btn btn-normal" onclick="speakPhrase(2)">🚀 匀速词×3</button>
+                <button class="btn btn-fast" onclick="speakPhrase(2)">⚡ 常速句×3</button>
+                <button class="btn btn-stop" onclick="stopPlayback()">⏹️ 停止</button>
+            </div>
+        </div>
+        
+
+        <div class="card" id="card-3">
+            <div class="word-title" id="phrase-en-3">refreshed</div>
+            <div class="chinese-meaning" id="phrase-zh-3">精神焕发的</div>
+            <div class="example-en">I feel refreshed.</div>
+            <div class="example-cn">我感觉很精神。</div>
+            <div class="buttons">
+                <button class="btn btn-slow" onclick="speakPhrase(3)">🐢 慢速词×3</button>
+                <button class="btn btn-normal" onclick="speakPhrase(3)">🚀 匀速词×3</button>
+                <button class="btn btn-fast" onclick="speakPhrase(3)">⚡ 常速句×3</button>
+                <button class="btn btn-stop" onclick="stopPlayback()">⏹️ 停止</button>
+            </div>
+        </div>
+        
+
+        <div class="card" id="card-4">
+            <div class="word-title" id="phrase-en-4">energetic</div>
+            <div class="chinese-meaning" id="phrase-zh-4">精力充沛的</div>
+            <div class="example-en">I'm energetic.</div>
+            <div class="example-cn">我精力充沛。</div>
+            <div class="buttons">
+                <button class="btn btn-slow" onclick="speakPhrase(4)">🐢 慢速词×3</button>
+                <button class="btn btn-normal" onclick="speakPhrase(4)">🚀 匀速词×3</button>
+                <button class="btn btn-fast" onclick="speakPhrase(4)">⚡ 常速句×3</button>
+                <button class="btn btn-stop" onclick="stopPlayback()">⏹️ 停止</button>
+            </div>
+        </div>
+        
+
+        <div class="card" id="card-5">
+            <div class="word-title" id="phrase-en-5">habit</div>
+            <div class="chinese-meaning" id="phrase-zh-5">习惯</div>
+            <div class="example-en">It's a good habit.</div>
+            <div class="example-cn">这是个好习惯。</div>
+            <div class="buttons">
+                <button class="btn btn-slow" onclick="speakPhrase(5)">🐢 慢速词×3</button>
+                <button class="btn btn-normal" onclick="speakPhrase(5)">🚀 匀速词×3</button>
+                <button class="btn btn-fast" onclick="speakPhrase(5)">⚡ 常速句×3</button>
+                <button class="btn btn-stop" onclick="stopPlayback()">⏹️ 停止</button>
+            </div>
+        </div>
+        
+
+</div>
+
+<script>
+const maxLoops = 7;
+let currentLoop = 0;
+let isPlaying = false;
+let voice = null;
+let voices = [];
+
+// 初始化语音
+async function initVoices() {
+    return new Promise((resolve) => {
+        function checkVoices() {
+            voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                resolve();
+                return;
+            }
+            speechSynthesis.onvoiceschanged = function() {
+                voices = speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    resolve();
+                }
+            };
+            // 兜底：1秒后无论如何继续
+            setTimeout(() => { resolve(); }, 1000);
+        }
+        checkVoices();
+    });
+}
+
+async function startAutoPlay() {
+    // 解锁浏览器语音权限（手机端）
+    const unlock = new SpeechSynthesisUtterance('');
+    unlock.volume = 0;
+    unlock.rate = 2;
+    speechSynthesis.speak(unlock);
+    
+    await initVoices();
+    
+    // 优先 Microsoft David（英语男生）
+    const maleVoices = voices.filter(v =>
+        (v.name.includes('David') || v.name.includes('Google Male')) && 
+        v.lang.startsWith('en')
+    );
+    voice = maleVoices.length > 0 ? maleVoices[0] : voices.find(v => v.lang.startsWith('en'));
+    if (!voice) voice = voices[0];
+    
+    isPlaying = true;
+    currentLoop = 1;
+    
+    playNextLoop();
+}
+
+function playNextLoop() {
+    if (!isPlaying || currentLoop > maxLoops) {
+        stopPlayback();
+        return;
+    }
+    
+    // 更新状态显示
+    document.getElementById('loop-status').textContent = 
+        '🔄 第 ' + currentLoop + '/' + maxLoops + ' 轮';
+    
+    // 播放5个卡片
+    for (let i = 1; i <= 5; i++) {
+        setTimeout(() => { speakPhrase(i); }, (i - 1) * 1000);
+    }
+    
+    // 当前轮结束，进入下一轮（每轮结束后等待2秒）
+    setTimeout(() => {
+        currentLoop++;
+        if (currentLoop <= maxLoops) {
+            playNextLoop();
+        } else {
+            stopPlayback();
+        }
+    }, 5 * 1000 + 2000);
+}
+
+function speakPhrase(cardId) {
+    const en = document.getElementById('phrase-en-' + cardId).innerText;
+    const zh = document.getElementById('phrase-zh-' + cardId).innerText;
+    
+    const utteranceEn = new SpeechSynthesisUtterance(en);
+    utteranceEn.voice = voice;
+    utteranceEn.rate = getRate(cardId);
+    speechSynthesis.speak(utteranceEn);
+    
+    // 对应按钮需要中文播放
+    if ([1, 3].includes(cardId)) {
+        setTimeout(() => {
+            const utteranceZh = new SpeechSynthesisUtterance(zh);
+            utteranceZh.voice = voice;
+            utteranceZh.rate = getRate(cardId) * 0.8;
+            speechSynthesis.speak(utteranceZh);
+        }, 300);
+    }
+}
+
+function getRate(cardId) {
+    const rates = { 1: 0.4, 2: 0.8, 3: 0.6, 4: 0.8, 5: 0.9 };
+    return rates[cardId] || 1;
+}
+
+function stopPlayback() {
+    isPlaying = false;
+    speechSynthesis.cancel();
+    document.getElementById('loop-status').textContent = 
+        '⏹️ 停止';
+}
+
+</script>
+</body>
+</html>
